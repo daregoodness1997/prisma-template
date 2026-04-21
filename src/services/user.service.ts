@@ -21,4 +21,12 @@ export class UserService {
     });
     return user;
   }
+
+  async getUserAndAllPosts(userId: number) {
+    const userWithPosts = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { posts: true },
+    });
+    return userWithPosts;
+  }
 }

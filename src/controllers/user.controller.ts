@@ -46,4 +46,22 @@ export class UserController {
       res.status(500).json({ error: "Failed to fetch user: " + error.message });
     }
   }
+
+  async getUserAndAllPosts(req: any, res: any) {
+    try {
+      const { userId } = req.params;
+      const userWithPosts = await this.userService.getUserAndAllPosts(
+        Number(userId),
+      );
+      if (userWithPosts) {
+        res.status(200).json(userWithPosts);
+      } else {
+        res.status(404).json({ error: "User not found" });
+      }
+    } catch (error: any) {
+      res
+        .status(500)
+        .json({ error: "Failed to fetch users: " + error.message });
+    }
+  }
 }

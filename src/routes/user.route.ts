@@ -65,6 +65,46 @@ router.get("/", userController.getAllUsers.bind(userController));
 
 /**
  * @swagger
+ * /api/users/posts/{userId}:
+ *   get:
+ *     summary: Retrieve a user and all their posts by user ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the user to retrieve along with their posts
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: User and their posts retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserWithPosts'
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+router.get(
+  "/posts/:userId",
+  userController.getUserAndAllPosts.bind(userController),
+);
+
+/**
+ * @swagger
  * /api/users/{email}:
  *   get:
  *     summary: Retrieve a user by email

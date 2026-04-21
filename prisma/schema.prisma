@@ -4,8 +4,9 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider        = "prisma-client"
+  output          = "../generated/prisma"
+  previewFeatures = ["partialIndexes"]
 }
 
 datasource db {
@@ -18,12 +19,15 @@ enum Role {
 }
 
 model User {
-  id      Int      @id @default(autoincrement())
-  name    String?
-  email   String   @unique
-  role    Role     @default(USER)
-  posts   Post[]
-  profile Profile?
+  id       Int      @id @default(autoincrement())
+  name     String?
+  email    String   @unique
+  role     Role     @default(USER)
+  posts    Post[]
+  profile  Profile?
+  verified Boolean  @default(false)
+
+  @@index([email], where: { verified: true })
 }
 
 model Post {
@@ -36,17 +40,51 @@ model Post {
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
   categories Category[]
+  comments   Comment[]
+  keywords   String[]
+  likes      Like[]
+  tags       Tag[]
+
+  @@index([title], where: { published: true })
 }
 
 model Profile {
-  id     Int     @id @default(autoincrement())
-  bio    String?
-  userId Int     @unique
-  user   User    @relation(fields: [userId], references: [id])
+  id       Int     @id @default(autoincrement())
+  bio      String?
+  userId   Int     @unique //@map("user_id")
+  user     User    @relation(fields: [userId], references: [id])
+  username String  @unique
+
+  @@index([username])
 }
 
 model Category {
   id    Int    @id @default(autoincrement())
   name  String @unique
   posts Post[]
+}
+
+model Comment {
+  id Int @id @default(autoincrement())
+
+  // @@map("comments")
+  post    Post?   @relation(fields: [postId], references: [id])
+  postId  Int?
+  title   String?
+  content String
+}
+
+model Like {
+  id     Int  @id @default(autoincrement())
+  post   Post @relation(fields: [postId], references: [id])
+  postId Int
+}
+
+model Tag {
+  id     Int    @id @default(autoincrement())
+  name   String
+  posts  Post?  @relation(fields: [postId], references: [id])
+  postId Int?
+
+  @@unique([name])
 }

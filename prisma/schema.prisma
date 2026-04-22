@@ -19,13 +19,14 @@ enum Role {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
+  id       Int       @id @default(autoincrement())
   name     String?
-  email    String   @unique
-  role     Role     @default(USER)
+  email    String    @unique
+  role     Role      @default(USER)
   posts    Post[]
   profile  Profile?
-  verified Boolean  @default(false)
+  verified Boolean   @default(false)
+  accounts Account[]
 
   @@index([email], where: { verified: true })
 }
@@ -87,4 +88,11 @@ model Tag {
   postId Int?
 
   @@unique([name])
+}
+
+model Account {
+  id      Int   @id @default(autoincrement())
+  balance Float @default(0)
+  userId  Int
+  user    User  @relation(fields: [userId], references: [id])
 }

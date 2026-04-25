@@ -1,17 +1,30 @@
 import { prisma } from "../../lib/prisma";
-
-type User = { email: string; name: string };
+import type { CreateUserDto } from "../dtos/user/create-user-dto";
+import type { GetUsersQueryDto } from "../dtos/user/get-users-query.dto";
 
 export class UserService {
-  async createUser(data: User) {
+  async createUser(data: CreateUserDto) {
     const user = await prisma.user.create({
       data,
     });
     return user;
   }
 
-  async getAllUsers() {
-    const users = await prisma.user.findMany();
+  async getAllUsers(params?: GetUsersQueryDto) {
+    const users = await prisma.user.findMany({
+      where: {
+        name: params?.name
+          ? { contains: params.name, mode: "insensitive" }
+          : undefined,
+        email: params?.email
+          ? { contains: params.email, mode: "insensitive" }
+          : undefined,
+        role: params?.role || undefined,
+      },
+      skip: params?.skip || 0,
+      take: params?.page ? 10 : undefined,
+      orderBy: { name: params?.orderBy || "desc" },
+    });
     return users;
   }
 

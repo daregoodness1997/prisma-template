@@ -1,4 +1,4 @@
-import { UserController } from "../controllers/user.controller";
+import { UserController } from "../../controllers/user.controller";
 import express from "express";
 
 const router = express.Router();
@@ -41,10 +41,52 @@ router.post("/", userController.createUser.bind(userController));
 
 /**
  * @swagger
- * /api/users:
+ * /api/v2/users:
  *   get:
  *     summary: Retrieve all users
  *     tags: [Users]
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *           format: email
+ *         description: Filter users by email
+ *         example: alice@example.com
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: Filter users by name
+ *         example: Alice
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           enum: [USER, ADMIN]
+ *         description: Filter users by role
+ *         example: USER
+ *       - in: query
+ *         name: skip
+ *         schema:
+ *           type: integer
+ *           minimum: 0
+ *         description: Number of records to skip
+ *         example: 0
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Page number (returns 10 results per page)
+ *         example: 1
+ *       - in: query
+ *         name: orderBy
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *         description: Order results by name
+ *         example: asc
  *     responses:
  *       200:
  *         description: A list of users

@@ -1,4 +1,9 @@
+import { Request, Response } from "express";
+import { CreateUserSchema } from "../dtos/user/create-user-dto";
 import { UserService } from "../services/user.service";
+import { GetUsersQuerySchema } from "../dtos/user/get-users-query.dto";
+import { UserResponseSchema } from "../dtos/user/user-response.dto";
+import { ZodError } from "zod";
 
 export class UserController {
   private userService: UserService;
@@ -10,26 +15,31 @@ export class UserController {
     this.userService = new UserService();
   }
 
-  async createUser(req: any, res: any) {
+  async createUser(req: Request, res: Response) {
     try {
-      const { email, name } = req.body;
-      const user = await this.userService.createUser({ email, name });
+      const data = CreateUserSchema.parse(req.body);
+      const user = await this.userService.createUser(data);
       res.status(201).json(user);
-    } catch (error: any) {
-      res
-        .status(500)
-        .json({ error: "Failed to create user: " + error.message });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ errors: error.issues });
+        return;
+      }
+      res.status(500).json({ error: "Failed to create user" });
     }
   }
 
-  async getAllUsers(req: any, res: any) {
+  async getAllUsers(req: Request, res: Response) {
     try {
-      const users = await this.userService.getAllUsers();
-      res.status(200).json(users);
-    } catch (error: any) {
-      res
-        .status(500)
-        .json({ error: "Failed to fetch users: " + error.message });
+      const query = GetUsersQuerySchema.parse(req.query);
+      const users = await this.userService.getAllUsers(query);
+      res.status(200).json(users.map((user) => UserResponseSchema.parse(user)));
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ errors: error.issues });
+        return;
+      }
+      res.status(500).json({ error: "Failed to fetch users" });
     }
   }
 
